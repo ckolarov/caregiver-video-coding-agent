@@ -210,7 +210,8 @@
     .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px; }
     .team-member { text-align: center; padding: 24px 16px; background: var(--bg); border-radius: var(--radius); }
-    .team-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; margin: 0 auto 10px; }
+    .team-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; margin: 0 auto 10px; overflow: hidden; }
+    .team-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .team-member h4 { font-size: 14px; font-weight: 700; }
     .team-member p { font-size: 12px; color: var(--text-muted); }
 
@@ -471,22 +472,22 @@
         <p style="font-size:13px; color:var(--text-muted);">Connor Kolarov, Zoe Zung, Julia Levy, Trey McDonald</p>
         <div class="team-grid">
           <div class="team-member">
-            <div class="team-avatar">CK</div>
+            <div class="team-avatar"><img src="images/connor.jpg" alt="Connor Kolarov"></div>
             <h4>Connor Kolarov</h4>
             <p><a href="mailto:cdkolarov@wm.edu" style="color:var(--teal);text-decoration:none;font-size:12px;">cdkolarov@wm.edu</a></p>
           </div>
           <div class="team-member">
-            <div class="team-avatar">ZZ</div>
+            <div class="team-avatar"><img src="images/zoe.jpg" alt="Zoe Zung"></div>
             <h4>Zoe Zung</h4>
             <p><a href="mailto:zzung@wm.edu" style="color:var(--teal);text-decoration:none;font-size:12px;">zzung@wm.edu</a></p>
           </div>
           <div class="team-member">
-            <div class="team-avatar">JL</div>
+            <div class="team-avatar"><img src="images/julia.jpg" alt="Julia Levy"></div>
             <h4>Julia Levy</h4>
             <p><a href="mailto:jdlevy@wm.edu" style="color:var(--teal);text-decoration:none;font-size:12px;">jdlevy@wm.edu</a></p>
           </div>
           <div class="team-member">
-            <div class="team-avatar">TM</div>
+            <div class="team-avatar"><img src="images/trey.jpg" alt="Trey McDonald"></div>
             <h4>Trey McDonald</h4>
             <p><a href="mailto:fmcdonald@wm.edu" style="color:var(--teal);text-decoration:none;font-size:12px;">fmcdonald@wm.edu</a></p>
           </div>
