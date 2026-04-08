@@ -33,8 +33,12 @@
     body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
 
     /* ===== API Banner ===== */
-    .api-banner { background: var(--yellow-bg); color: var(--yellow-text); text-align: center; padding: 8px 16px; font-size: 13px; font-weight: 600; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+    .api-banner { background: var(--yellow-bg); color: var(--yellow-text); text-align: center; padding: 8px 16px; font-size: 13px; font-weight: 600; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
     .api-banner.hidden { display: none; }
+    .api-banner input { padding: 4px 10px; border: 1px solid #d4a017; border-radius: 6px; font-size: 13px; font-family: monospace; width: 320px; background: white; }
+    .api-banner button { padding: 4px 14px; background: #92400e; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .api-banner button:hover { background: #78350f; }
+    .api-banner .key-saved { color: var(--green-text); font-weight: 700; }
 
     /* ===== Sidebar ===== */
     .sidebar {
@@ -231,7 +235,12 @@
 <body class="has-banner">
 
   <!-- API Banner -->
-  <div class="api-banner" id="apiBanner">Insert your Gemini API key in the script before use</div>
+  <div class="api-banner" id="apiBanner">
+    <span>Gemini API Key:</span>
+    <input type="password" id="apiKeyInput" placeholder="Paste your key here...">
+    <button onclick="saveApiKey()">Save</button>
+    <span style="font-weight:400; font-size:12px;">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#92400e; text-decoration:underline;">aistudio.google.com</a></span>
+  </div>
 
   <!-- Mobile Toggle -->
   <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">
@@ -504,7 +513,9 @@
     /* ==============================
        INSERT YOUR GEMINI API KEY
     ============================== */
-    const GEMINI_API_KEY = "YOUR_API_KEY_HERE";
+    function getApiKey() {
+      return localStorage.getItem("devwatch_gemini_key") || "";
+    }
 
     const OBS_CATEGORIES = ["movement", "caregiver_engagement", "safety", "learning_support"];
     const OBS_LABELS = {
@@ -514,8 +525,20 @@
       learning_support: "Learning Support"
     };
 
-    // Hide banner if key is set
-    if (GEMINI_API_KEY !== "YOUR_API_KEY_HERE") {
+    // Hide banner if key is already saved
+    (function initBanner() {
+      const saved = getApiKey();
+      if (saved) {
+        document.getElementById("apiBanner").classList.add("hidden");
+        document.body.classList.remove("has-banner");
+      }
+    })();
+
+    function saveApiKey() {
+      const input = document.getElementById("apiKeyInput");
+      const key = input.value.trim();
+      if (!key) { input.focus(); return; }
+      localStorage.setItem("devwatch_gemini_key", key);
       document.getElementById("apiBanner").classList.add("hidden");
       document.body.classList.remove("has-banner");
     }
@@ -567,7 +590,8 @@
       resultsSection.classList.remove("visible");
 
       if (!videoUrl) { showError("Please enter a YouTube video URL."); return; }
-      if (GEMINI_API_KEY === "YOUR_API_KEY_HERE") { showError("Please insert your Gemini API key in the script before use."); return; }
+      const GEMINI_API_KEY = getApiKey();
+      if (!GEMINI_API_KEY) { showError("Please enter your Gemini API key using the banner at the top of the page."); document.getElementById("apiBanner").classList.remove("hidden"); document.body.classList.add("has-banner"); return; }
 
       let humanCodes = null;
       if (humanCodesRaw) {
