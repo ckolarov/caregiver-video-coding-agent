@@ -283,8 +283,8 @@
     <!-- ==================== DASHBOARD ==================== -->
     <div class="view active" id="view-dashboard">
       <div class="hero">
-        <h2>See What Your Child Is Learning</h2>
-        <p>Upload a video of your child playing or interacting with a caregiver, and get helpful insights about what developmental behaviors are happening — movement milestones, how the caregiver is engaging, safety awareness, and learning support.</p>
+        <h2>Understand Your Child's Cognitive Growth</h2>
+        <p>Upload a video of your child playing or interacting with a caregiver. Get insights into what developmental behaviors are happening and what they mean for your child's cognitive development — from motor milestones that build problem-solving skills to caregiver interactions that spark language growth.</p>
         <button class="btn" onclick="switchView('analyze')">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           Start Analyzing
@@ -332,8 +332,8 @@
           </div>
           <div class="step-card">
             <div class="step-num">3</div>
-            <h3>Get a Clear Summary</h3>
-            <p>Read easy-to-understand insights about what's happening in the video</p>
+            <h3>Get Developmental Insights</h3>
+            <p>Understand what behaviors mean for cognitive growth, plus tips to support your child</p>
           </div>
         </div>
       </div>
@@ -411,6 +411,12 @@
         <div class="card" id="comparisonCard" style="display:none;">
           <div class="card-header"><h2>Comparison</h2></div>
           <div id="comparisonResults"></div>
+        </div>
+
+        <!-- Cognitive Development Insights -->
+        <div class="card" id="cognitiveCard">
+          <div class="card-header"><h2>What This Means for Development</h2></div>
+          <div id="cognitiveInsights"></div>
         </div>
 
         <!-- Things to Note -->
@@ -603,20 +609,25 @@
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> Analyzing...';
 
-      const prompt = `You are a friendly child development observer helping parents understand what's happening in a video of their child. Analyze the caregiver-child interaction video at this URL: ${videoUrl}
+      const prompt = `You are a child development expert helping parents understand what's happening in a video of their child and what it means for their cognitive growth. Analyze the caregiver-child interaction video at this URL: ${videoUrl}
 
-Produce your observations in valid JSON with these fields:
-- "summary": A warm, easy-to-read 2-3 sentence description of what you see happening in the video, written for a parent audience.
+Produce your analysis in valid JSON with these fields:
+- "summary": A warm, easy-to-read 2-3 sentence description of what you see happening in the video and what it suggests about the child's development, written for a parent audience.
 - "observations": An object with these four keys:
     - "movement": What movement or motor skills you observe the child doing (reaching, crawling, grasping, walking, etc.). Use "observed", "not observed", or "hard to tell".
     - "caregiver_engagement": How the adult is interacting with the child (talking, holding, playing, encouraging). Use "observed", "not observed", or "hard to tell".
     - "safety": Whether there are any visible safety concerns. Use "looks safe", "concern noticed", or "hard to tell".
     - "learning_support": Whether the caregiver seems to be helping the child learn something new, like guiding them through a task. Use "observed", "not observed", or "hard to tell".
 - "details": An object with the same four keys, each containing 1-2 friendly sentences explaining what you noticed, written as if talking to a parent. Be encouraging and specific.
+- "cognitive_insights": An object with these keys, each containing 2-3 sentences explaining how the observed behaviors connect to the child's cognitive development:
+    - "what_this_means": A plain-language explanation of what the observed motor and interaction patterns tell us about the child's brain development and cognitive growth. Connect specific movements or interactions to developmental milestones (e.g., reaching builds hand-eye coordination, babbling with a caregiver supports language development, exploring objects builds problem-solving skills).
+    - "developmental_stage": Based on what you observe, describe what approximate developmental stage the child appears to be in and what cognitive abilities are typically emerging at this stage. Be general and supportive, not diagnostic.
+    - "how_to_support": Provide 2-3 specific, actionable suggestions for how the caregiver can continue supporting the child's cognitive development based on what you observed in the video. These should be practical everyday activities.
 - "things_to_note": An array of short, friendly suggestions or things a parent might want to pay attention to or discuss with their pediatrician.
 
 Important rules:
-- Write in a warm, supportive tone — you're helping a parent, not writing a clinical report.
+- Write in a warm, supportive, encouraging tone — you're helping a parent understand their child's growth.
+- Connect physical behaviors to cognitive development (e.g., "When your child reaches for that toy, they're practicing hand-eye coordination, which is a building block for problem-solving").
 - Only describe what you can actually see happening.
 - Do not diagnose the child or make medical claims.
 - If something is unclear, say so kindly.
@@ -688,6 +699,25 @@ Important rules:
 
       // Hide comparison for parent view
       document.getElementById("comparisonCard").style.display = "none";
+
+      // Cognitive insights
+      const cogDiv = document.getElementById("cognitiveInsights");
+      const cog = result.cognitive_insights;
+      if (cog) {
+        document.getElementById("cognitiveCard").style.display = "block";
+        cogDiv.innerHTML = "";
+        if (cog.what_this_means) {
+          cogDiv.innerHTML += `<div class="evidence-item"><strong>What the Behaviors Tell Us</strong><p>${cog.what_this_means}</p></div>`;
+        }
+        if (cog.developmental_stage) {
+          cogDiv.innerHTML += `<div class="evidence-item"><strong>Developmental Stage</strong><p>${cog.developmental_stage}</p></div>`;
+        }
+        if (cog.how_to_support) {
+          cogDiv.innerHTML += `<div class="evidence-item"><strong>How You Can Support Their Growth</strong><p>${cog.how_to_support}</p></div>`;
+        }
+      } else {
+        document.getElementById("cognitiveCard").style.display = "none";
+      }
 
       // Things to note
       const flagsDiv = document.getElementById("reviewFlags");
