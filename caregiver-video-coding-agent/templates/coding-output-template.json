@@ -1,0 +1,23 @@
+{
+  "video_id": "",
+  "clip_id": "",
+  "clip_window": "",
+  "clip_summary": "",
+  "rubric_codes": {
+    "motor_development": "",
+    "caregiver_behavior": "",
+    "safety_issue": "",
+    "scaffolding": ""
+  },
+  "evidence_notes": {
+    "motor_development": "",
+    "caregiver_behavior": "",
+    "safety_issue": "",
+    "scaffolding": ""
+  },
+  "comparison_to_human": {
+    "agreement": "not_available",
+    "differences": []
+  },
+  "review_flags": []
+}
