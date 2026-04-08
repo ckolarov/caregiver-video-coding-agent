@@ -3,267 +3,502 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Caregiver Video Coding Agent</title>
+  <title>LittleSteps — Child Development Video Insights</title>
   <style>
+    :root {
+      --sidebar-w: 250px;
+      --navy: #0f172a;
+      --navy-light: #1e293b;
+      --teal: #0ea5e9;
+      --teal-dark: #0284c7;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --green: #10b981;
+      --green-bg: #d1fae5;
+      --green-text: #065f46;
+      --yellow: #f59e0b;
+      --yellow-bg: #fef3c7;
+      --yellow-text: #92400e;
+      --red: #ef4444;
+      --red-bg: #fee2e2;
+      --red-text: #991b1b;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: #f5f7fa;
-      color: #1a1a2e;
-      line-height: 1.6;
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* ===== API Banner ===== */
+    .api-banner { background: var(--yellow-bg); color: var(--yellow-text); text-align: center; padding: 8px 16px; font-size: 13px; font-weight: 600; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+    .api-banner.hidden { display: none; }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w);
+      background: var(--navy); color: white; display: flex; flex-direction: column;
+      z-index: 900; transition: transform 0.3s;
     }
-    .api-banner {
-      background: #fff3cd;
-      color: #856404;
-      text-align: center;
-      padding: 10px 16px;
-      font-size: 14px;
-      border-bottom: 1px solid #ffeeba;
+    .sidebar-brand { padding: 28px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-brand h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.3; }
+    .sidebar-brand p { font-size: 11px; color: var(--text-muted); margin-top: 4px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.8px; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+      border-radius: 8px; color: rgba(255,255,255,0.65); font-size: 14px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; margin-bottom: 4px; text-decoration: none;
     }
-    header {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      color: white;
-      padding: 32px 24px;
-      text-align: center;
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+    .nav-item.active { background: rgba(14,165,233,0.15); color: var(--teal); }
+    .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.5; }
+
+    /* ===== Mobile Toggle ===== */
+    .mobile-toggle {
+      display: none; position: fixed; top: 12px; left: 12px; z-index: 1001;
+      background: var(--navy); color: white; border: none; border-radius: 8px;
+      width: 40px; height: 40px; cursor: pointer; align-items: center; justify-content: center;
     }
-    header h1 {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 8px;
+    .mobile-toggle svg { width: 22px; height: 22px; }
+
+    /* ===== Main ===== */
+    .main { margin-left: var(--sidebar-w); padding: 32px 36px; min-height: 100vh; transition: margin 0.3s; }
+    .has-banner .main { padding-top: 64px; }
+    .has-banner .sidebar { padding-top: 32px; }
+
+    /* ===== Views ===== */
+    .view { display: none; animation: fadeIn 0.25s ease; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ===== Cards ===== */
+    .card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .card-header h2 { font-size: 16px; font-weight: 700; color: var(--text); }
+
+    /* ===== Dashboard ===== */
+    .hero { background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 50%, var(--teal-dark) 100%); border-radius: var(--radius); padding: 40px 36px; color: white; margin-bottom: 24px; position: relative; overflow: hidden; }
+    .hero::after { content: ''; position: absolute; top: -50%; right: -20%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%); border-radius: 50%; }
+    .hero h2 { font-size: 26px; font-weight: 700; margin-bottom: 10px; position: relative; z-index: 1; }
+    .hero p { font-size: 15px; opacity: 0.85; max-width: 560px; position: relative; z-index: 1; line-height: 1.7; }
+    .hero .btn { margin-top: 20px; position: relative; z-index: 1; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); text-align: center; }
+    .stat-card .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+    .stat-card .stat-icon svg { width: 24px; height: 24px; }
+    .stat-card .stat-number { font-size: 32px; font-weight: 800; color: var(--text); line-height: 1; }
+    .stat-card .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .step-card { background: var(--card); border-radius: var(--radius); padding: 28px 24px; box-shadow: var(--shadow); text-align: center; position: relative; }
+    .step-num { width: 36px; height: 36px; border-radius: 50%; background: var(--teal); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; margin: 0 auto 14px; }
+    .step-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .step-card p { font-size: 13px; color: var(--text-muted); }
+    .step-arrow { position: absolute; right: -14px; top: 50%; transform: translateY(-50%); color: var(--border); font-size: 20px; z-index: 2; }
+
+    /* ===== Analyze ===== */
+    .analyze-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .analyze-layout.full-width { grid-template-columns: 1fr; }
+    label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.6px; }
+    input[type="text"], textarea, input[type="url"] {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 14px; font-family: inherit; transition: all 0.15s; background: white;
     }
-    header p {
-      font-size: 15px;
-      opacity: 0.85;
-    }
-    .container {
-      max-width: 840px;
-      margin: 32px auto;
-      padding: 0 20px;
-    }
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .card h2 {
-      font-size: 18px;
-      margin-bottom: 16px;
-      color: #16213e;
-    }
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #555;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    input[type="text"], textarea {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 15px;
-      font-family: inherit;
-      transition: border-color 0.2s;
-    }
-    input[type="text"]:focus, textarea:focus {
-      outline: none;
-      border-color: #4361ee;
-      box-shadow: 0 0 0 3px rgba(67,97,238,0.1);
-    }
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-    .field-group { margin-bottom: 18px; }
-    .hint {
-      font-size: 12px;
-      color: #888;
-      margin-top: 4px;
-    }
+    input:focus, textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(14,165,233,0.1); }
+    textarea { resize: vertical; min-height: 80px; font-family: 'SF Mono', 'Consolas', monospace; font-size: 13px; }
+    .field-group { margin-bottom: 16px; }
+    .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
     .btn {
-      display: inline-block;
-      background: #4361ee;
-      color: white;
-      padding: 14px 32px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-      width: 100%;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--teal); color: white; padding: 12px 28px; border: none;
+      border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; text-decoration: none;
     }
-    .btn:hover { background: #3a56d4; }
-    .btn:disabled {
-      background: #a0aec0;
-      cursor: not-allowed;
-    }
-    .spinner {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
+    .btn:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+    .btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-full { width: 100%; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--teal); color: var(--teal); }
+    .btn-outline:hover { background: rgba(14,165,233,0.05); }
+    .btn-sm { padding: 8px 16px; font-size: 13px; }
+    .btn-danger { background: var(--red); }
+    .btn-danger:hover { background: #dc2626; }
+
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .results { display: none; }
-    .results.visible { display: block; }
-    .code-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .code-row:last-child { border-bottom: none; }
-    .code-label {
-      font-weight: 600;
-      font-size: 14px;
-      min-width: 180px;
-    }
-    .code-value {
-      font-size: 14px;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-weight: 600;
-    }
-    .code-value.present { background: #d4edda; color: #155724; }
-    .code-value.absent { background: #f8d7da; color: #721c24; }
-    .code-value.uncertain { background: #fff3cd; color: #856404; }
-    .evidence-item {
-      padding: 10px 0;
-      border-bottom: 1px solid #f0f0f0;
-      font-size: 14px;
-    }
+
+    .video-preview { border-radius: var(--radius); overflow: hidden; background: var(--navy); aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; }
+    .video-preview iframe { width: 100%; height: 100%; border: none; }
+    .video-preview .placeholder { color: rgba(255,255,255,0.4); font-size: 14px; text-align: center; padding: 20px; }
+    .video-preview .placeholder svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.4; display: block; margin-left: auto; margin-right: auto; }
+
+    .collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
+    .collapsible-header h3 { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .collapsible-body { display: none; padding-top: 8px; }
+    .collapsible-body.open { display: block; }
+    .chevron { transition: transform 0.2s; }
+    .chevron.open { transform: rotate(180deg); }
+
+    .error-msg { background: var(--red-bg); color: var(--red-text); padding: 14px 16px; border-radius: 8px; margin-top: 12px; font-size: 13px; font-weight: 500; display: none; }
+
+    /* ===== Results ===== */
+    .results-section { display: none; margin-top: 24px; }
+    .results-section.visible { display: block; }
+
+    .rubric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .rubric-card { border-radius: 10px; padding: 18px 20px; border-left: 4px solid; }
+    .rubric-card.present { background: var(--green-bg); border-color: var(--green); }
+    .rubric-card.absent { background: var(--red-bg); border-color: var(--red); }
+    .rubric-card.uncertain { background: var(--yellow-bg); border-color: var(--yellow); }
+    .rubric-card .rc-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .rubric-card.present .rc-label { color: var(--green-text); }
+    .rubric-card.absent .rc-label { color: var(--red-text); }
+    .rubric-card.uncertain .rc-label { color: var(--yellow-text); }
+    .rubric-card .rc-value { font-size: 20px; font-weight: 800; text-transform: capitalize; }
+    .rubric-card.present .rc-value { color: var(--green-text); }
+    .rubric-card.absent .rc-value { color: var(--red-text); }
+    .rubric-card.uncertain .rc-value { color: var(--yellow-text); }
+
+    .summary-box { background: var(--bg); border-radius: 10px; padding: 18px 20px; font-size: 14px; color: var(--text); line-height: 1.7; border-left: 4px solid var(--teal); }
+    .evidence-item { padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
     .evidence-item:last-child { border-bottom: none; }
-    .evidence-item strong {
-      display: block;
-      margin-bottom: 4px;
-      color: #16213e;
-    }
-    .comparison-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    .comparison-table th, .comparison-table td {
-      padding: 10px 12px;
-      text-align: left;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .comparison-table th {
-      background: #f8f9fa;
-      font-weight: 600;
-      color: #555;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .match { color: #155724; }
-    .mismatch { color: #721c24; font-weight: 600; }
-    .agreement-badge {
-      display: inline-block;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 14px;
-      margin-top: 12px;
-    }
-    .agreement-badge.high { background: #d4edda; color: #155724; }
-    .agreement-badge.medium { background: #fff3cd; color: #856404; }
-    .agreement-badge.low { background: #f8d7da; color: #721c24; }
-    .error-msg {
-      background: #f8d7da;
-      color: #721c24;
-      padding: 16px;
-      border-radius: 8px;
-      margin-top: 16px;
-      font-size: 14px;
-    }
-    .clip-summary {
-      font-size: 15px;
-      color: #333;
-      padding: 12px 16px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border-left: 4px solid #4361ee;
-      margin-bottom: 8px;
-    }
-    footer {
-      text-align: center;
-      padding: 24px;
-      font-size: 13px;
-      color: #888;
+    .evidence-item strong { display: block; margin-bottom: 3px; font-size: 13px; color: var(--text); }
+    .evidence-item p { color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+
+    .flag-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; font-size: 13px; color: var(--text-muted); }
+    .flag-item svg { width: 16px; height: 16px; color: var(--yellow); flex-shrink: 0; margin-top: 2px; }
+
+    .comparison-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .comparison-table th { text-align: left; padding: 10px 14px; background: var(--bg); font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .comparison-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .match-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .match-badge.match { background: var(--green-bg); color: var(--green-text); }
+    .match-badge.mismatch { background: var(--red-bg); color: var(--red-text); }
+    .agreement-pill { display: inline-block; padding: 6px 18px; border-radius: 20px; font-weight: 700; font-size: 14px; margin-top: 14px; }
+    .agreement-pill.high { background: var(--green-bg); color: var(--green-text); }
+    .agreement-pill.medium { background: var(--yellow-bg); color: var(--yellow-text); }
+    .agreement-pill.low { background: var(--red-bg); color: var(--red-text); }
+
+    /* ===== Loading Skeleton ===== */
+    .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ===== History ===== */
+    .history-table { width: 100%; border-collapse: collapse; }
+    .history-table th { text-align: left; padding: 10px 14px; background: var(--bg); font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    .history-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13px; cursor: pointer; }
+    .history-table tr:hover td { background: rgba(14,165,233,0.04); }
+    .history-empty { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+    .history-empty svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.4; }
+    .history-empty p { font-size: 14px; }
+
+    .mini-codes { display: flex; gap: 6px; }
+    .mini-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .mini-dot.present { background: var(--green); }
+    .mini-dot.absent { background: var(--red); }
+    .mini-dot.uncertain { background: var(--yellow); }
+
+    /* ===== About ===== */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px; }
+    .team-member { text-align: center; padding: 24px 16px; background: var(--bg); border-radius: var(--radius); }
+    .team-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; margin: 0 auto 10px; }
+    .team-member h4 { font-size: 14px; font-weight: 700; }
+    .team-member p { font-size: 12px; color: var(--text-muted); }
+
+    .rubric-explain { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .rubric-explain-item { padding: 16px; background: var(--bg); border-radius: 8px; }
+    .rubric-explain-item h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .rubric-explain-item p { font-size: 12px; color: var(--text-muted); }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 860px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-toggle { display: flex; }
+      .main { margin-left: 0; padding: 24px 16px; }
+      .has-banner .main { padding-top: 56px; }
+      .stats-grid, .steps-grid, .rubric-grid, .about-grid, .rubric-explain { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .analyze-layout { grid-template-columns: 1fr; }
     }
   </style>
 </head>
-<body>
-  <div class="api-banner">
-    Insert your Gemini API key in the script before use
-  </div>
+<body class="has-banner">
 
-  <header>
-    <h1>Caregiver Video Coding Agent</h1>
-    <p>AI-assisted behavioral coding for developmental psychology research</p>
-  </header>
+  <!-- API Banner -->
+  <div class="api-banner" id="apiBanner">Insert your Gemini API key in the script before use</div>
 
-  <div class="container">
-    <div class="card">
-      <h2>Analyze a Video</h2>
-      <div class="field-group">
-        <label for="videoUrl">YouTube Video URL</label>
-        <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=_YR1WeOBc0E">
+  <!-- Mobile Toggle -->
+  <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>LittleSteps</h1>
+      <p>Video Insights</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-view="dashboard" onclick="switchView('dashboard')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" data-view="analyze" onclick="switchView('analyze')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        Analyze Video
+      </a>
+      <a class="nav-item" data-view="history" onclick="switchView('history')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        History
+      </a>
+      <a class="nav-item" data-view="about" onclick="switchView('about')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        About
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      William &amp; Mary MSBA<br>AI Class &middot; Spring 2026
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <div class="view active" id="view-dashboard">
+      <div class="hero">
+        <h2>See What Your Child Is Learning</h2>
+        <p>Upload a video of your child playing or interacting with a caregiver, and get helpful insights about what developmental behaviors are happening — movement milestones, how the caregiver is engaging, safety awareness, and learning support.</p>
+        <button class="btn" onclick="switchView('analyze')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Start Analyzing
+        </button>
       </div>
-      <div class="field-group">
-        <label for="humanCodes">Human-Coded Labels (optional)</label>
-        <textarea id="humanCodes" placeholder='{"motor_development": "present", "caregiver_behavior": "present", "safety_issue": "absent", "scaffolding": "present"}'></textarea>
-        <div class="hint">Enter a JSON object with codes for comparison. Leave blank to skip.</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(14,165,233,0.1);">
+            <svg fill="none" stroke="var(--teal)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          </div>
+          <div class="stat-number">Video</div>
+          <div class="stat-label">Paste any YouTube link</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.1);">
+            <svg fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <div class="stat-number">Smart</div>
+          <div class="stat-label">Intelligent observations</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.1);">
+            <svg fill="none" stroke="var(--yellow)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <div class="stat-number">Safe</div>
+          <div class="stat-label">Observable behaviors only</div>
+        </div>
       </div>
-      <button class="btn" id="analyzeBtn" onclick="analyzeVideo()">Analyze Video</button>
-      <div id="errorBox" class="error-msg" style="display:none;"></div>
+
+      <div class="card">
+        <div class="card-header"><h2>How It Works</h2></div>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h3>Paste a YouTube URL</h3>
+            <p>Enter the link to any caregiver-child interaction video</p>
+            <span class="step-arrow">&#8594;</span>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h3>We Watch &amp; Observe</h3>
+            <p>The tool looks for movement, caregiver engagement, safety, and learning moments</p>
+            <span class="step-arrow">&#8594;</span>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h3>Get a Clear Summary</h3>
+            <p>Read easy-to-understand insights about what's happening in the video</p>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="results" id="resultsSection">
+    <!-- ==================== ANALYZE ==================== -->
+    <div class="view" id="view-analyze">
+      <h2 style="font-size:22px; font-weight:700; margin-bottom:20px;">Analyze Video</h2>
+
+      <div class="analyze-layout">
+        <!-- Left: Input -->
+        <div>
+          <div class="card">
+            <div class="card-header"><h2>Video Input</h2></div>
+            <div class="field-group">
+              <label for="videoUrl">YouTube Video URL</label>
+              <input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=_YR1WeOBc0E" oninput="updateVideoPreview()">
+            </div>
+
+            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+              <h3>Advanced: Human-Coded Labels</h3>
+              <svg class="chevron" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="collapsible-body">
+              <div class="field-group">
+                <label for="humanCodes">Human Codes (JSON)</label>
+                <textarea id="humanCodes" placeholder='{"motor_development":"present","caregiver_behavior":"present","safety_issue":"absent","scaffolding":"present"}'></textarea>
+                <div class="hint">Optional. Enter human-coded labels for AI vs. human comparison.</div>
+              </div>
+            </div>
+
+            <button class="btn btn-full" id="analyzeBtn" onclick="analyzeVideo()">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Analyze Video
+            </button>
+            <div class="error-msg" id="errorBox"></div>
+          </div>
+        </div>
+
+        <!-- Right: Video Preview -->
+        <div>
+          <div class="card">
+            <div class="card-header"><h2>Video Preview</h2></div>
+            <div class="video-preview" id="videoPreview">
+              <div class="placeholder">
+                <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg>
+                Enter a YouTube URL to preview
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="results-section" id="resultsSection">
+        <!-- Summary -->
+        <div class="card">
+          <div class="card-header"><h2>What We Noticed</h2></div>
+          <div id="clipSummary" class="summary-box"></div>
+        </div>
+
+        <!-- Observation Cards -->
+        <div class="card">
+          <div class="card-header"><h2>At a Glance</h2></div>
+          <div id="rubricCodes" class="rubric-grid"></div>
+        </div>
+
+        <!-- Details -->
+        <div class="card">
+          <div class="card-header"><h2>Details</h2></div>
+          <div id="evidenceNotes"></div>
+        </div>
+
+        <!-- Comparison (hidden for parent view) -->
+        <div class="card" id="comparisonCard" style="display:none;">
+          <div class="card-header"><h2>Comparison</h2></div>
+          <div id="comparisonResults"></div>
+        </div>
+
+        <!-- Things to Note -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Things to Note</h2>
+          </div>
+          <div id="reviewFlags"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== HISTORY ==================== -->
+    <div class="view" id="view-history">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+        <h2 style="font-size:22px; font-weight:700;">Analysis History</h2>
+        <button class="btn btn-sm btn-danger" onclick="clearHistory()" id="clearHistoryBtn" style="display:none;">Clear All</button>
+      </div>
       <div class="card">
-        <h2>Clip Summary</h2>
-        <div id="clipSummary" class="clip-summary"></div>
+        <div id="historyContent"></div>
+      </div>
+    </div>
+
+    <!-- ==================== ABOUT ==================== -->
+    <div class="view" id="view-about">
+      <h2 style="font-size:22px; font-weight:700; margin-bottom:20px;">About This Project</h2>
+
+      <div class="card">
+        <div class="card-header"><h2>What This Tool Does</h2></div>
+        <p style="font-size:14px; color:var(--text-muted); line-height:1.7;">
+          This tool uses AI to watch a video of a child interacting with a caregiver and gives you a friendly summary of what it observes. It looks at four key areas:
+        </p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;">
+          <div style="padding:16px; background:var(--bg); border-radius:8px;">
+            <h4 style="font-size:14px; font-weight:700; margin-bottom:4px;">Movement &amp; Motor Skills</h4>
+            <p style="font-size:13px; color:var(--text-muted);">Is your child reaching, crawling, grasping, walking, or hitting other movement milestones?</p>
+          </div>
+          <div style="padding:16px; background:var(--bg); border-radius:8px;">
+            <h4 style="font-size:14px; font-weight:700; margin-bottom:4px;">Caregiver Engagement</h4>
+            <p style="font-size:13px; color:var(--text-muted);">How is the adult interacting? Are they talking, holding, playing, or encouraging the child?</p>
+          </div>
+          <div style="padding:16px; background:var(--bg); border-radius:8px;">
+            <h4 style="font-size:14px; font-weight:700; margin-bottom:4px;">Safety Awareness</h4>
+            <p style="font-size:13px; color:var(--text-muted);">Are there any visible safety concerns in the environment or interaction?</p>
+          </div>
+          <div style="padding:16px; background:var(--bg); border-radius:8px;">
+            <h4 style="font-size:14px; font-weight:700; margin-bottom:4px;">Learning Support</h4>
+            <p style="font-size:13px; color:var(--text-muted);">Is the caregiver helping the child learn something new, like guiding them through a task?</p>
+          </div>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-top:16px; font-style:italic;">
+          This tool provides observations only — it does not diagnose or replace professional guidance. Always consult a pediatrician for developmental concerns.
+        </p>
       </div>
 
       <div class="card">
-        <h2>Rubric Codes</h2>
-        <div id="rubricCodes"></div>
+        <div class="card-header"><h2>Team</h2></div>
+        <p style="font-size:14px; color:var(--text-muted); margin-bottom:4px;">William &amp; Mary MSBA &middot; AI Class &middot; Spring 2026</p>
+        <p style="font-size:13px; color:var(--text-muted);">Connor Kolarov, Zoe Zung, Julia Levy, Trey McDonald</p>
+        <div class="team-grid">
+          <div class="team-member">
+            <div class="team-avatar">CK</div>
+            <h4>Connor Kolarov</h4>
+            <p><a href="mailto:cdkolarov@wm.edu" style="color:var(--teal);text-decoration:none;font-size:12px;">cdkolarov@wm.edu</a></p>
+          </div>
+          <div class="team-member">
+            <div class="team-avatar">ZZ</div>
+            <h4>Zoe Zung</h4>
+            <p><a href="mailto:zzung@wm.edu" style="color:var(--teal);text-decoration:none;font-size:12px;">zzung@wm.edu</a></p>
+          </div>
+          <div class="team-member">
+            <div class="team-avatar">JL</div>
+            <h4>Julia Levy</h4>
+            <p><a href="mailto:jdlevy@wm.edu" style="color:var(--teal);text-decoration:none;font-size:12px;">jdlevy@wm.edu</a></p>
+          </div>
+          <div class="team-member">
+            <div class="team-avatar">TM</div>
+            <h4>Trey McDonald</h4>
+            <p><a href="mailto:fmcdonald@wm.edu" style="color:var(--teal);text-decoration:none;font-size:12px;">fmcdonald@wm.edu</a></p>
+          </div>
+        </div>
       </div>
 
       <div class="card">
-        <h2>Evidence Notes</h2>
-        <div id="evidenceNotes"></div>
-      </div>
-
-      <div class="card" id="comparisonCard" style="display:none;">
-        <h2>Human Comparison</h2>
-        <div id="comparisonResults"></div>
-      </div>
-
-      <div class="card">
-        <h2>Review Flags</h2>
-        <div id="reviewFlags"></div>
+        <div class="card-header"><h2>Resources</h2></div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <a href="https://www.youtube.com/watch?v=_YR1WeOBc0E" target="_blank" class="btn btn-outline btn-sm">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Demo Video
+          </a>
+          <a href="https://github.com/ckolarov/caregiver-video-coding-agent" target="_blank" class="btn btn-outline btn-sm">
+            <svg fill="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub Repo
+          </a>
+        </div>
       </div>
     </div>
   </div>
-
-  <footer>
-    Caregiver Video Coding Agent &mdash; William &amp; Mary MSBA AI Class, Spring 2026<br>
-    Zoe, Julia, Connor, Trey
-  </footer>
 
   <script>
     /* ==============================
@@ -271,13 +506,56 @@
     ============================== */
     const GEMINI_API_KEY = "YOUR_API_KEY_HERE";
 
-    const RUBRIC_CATEGORIES = [
-      "motor_development",
-      "caregiver_behavior",
-      "safety_issue",
-      "scaffolding"
-    ];
+    const OBS_CATEGORIES = ["movement", "caregiver_engagement", "safety", "learning_support"];
+    const OBS_LABELS = {
+      movement: "Movement & Motor Skills",
+      caregiver_engagement: "Caregiver Engagement",
+      safety: "Safety",
+      learning_support: "Learning Support"
+    };
 
+    // Hide banner if key is set
+    if (GEMINI_API_KEY !== "YOUR_API_KEY_HERE") {
+      document.getElementById("apiBanner").classList.add("hidden");
+      document.body.classList.remove("has-banner");
+    }
+
+    /* ===== Navigation ===== */
+    function switchView(name) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+      document.getElementById("view-" + name).classList.add("active");
+      document.querySelector(`.nav-item[data-view="${name}"]`).classList.add("active");
+      document.querySelector(".sidebar").classList.remove("open");
+      if (name === "history") renderHistory();
+    }
+
+    /* ===== Video Preview ===== */
+    function extractVideoId(url) {
+      const m = url.match(/(?:v=|\/embed\/|youtu\.be\/|\/v\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+      return m ? m[1] : null;
+    }
+
+    function updateVideoPreview() {
+      const url = document.getElementById("videoUrl").value.trim();
+      const preview = document.getElementById("videoPreview");
+      const vid = extractVideoId(url);
+      if (vid) {
+        preview.innerHTML = `<iframe src="https://www.youtube.com/embed/${vid}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      } else {
+        preview.innerHTML = `<div class="placeholder"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg>Enter a YouTube URL to preview</div>`;
+      }
+    }
+
+    /* ===== Collapsible ===== */
+    function toggleCollapsible(header) {
+      const body = header.nextElementSibling;
+      const chevron = header.querySelector(".chevron");
+      body.classList.toggle("open");
+      chevron.classList.toggle("open");
+    }
+
+    /* ===== Analyze ===== */
     async function analyzeVideo() {
       const videoUrl = document.getElementById("videoUrl").value.trim();
       const humanCodesRaw = document.getElementById("humanCodes").value.trim();
@@ -288,48 +566,35 @@
       errorBox.style.display = "none";
       resultsSection.classList.remove("visible");
 
-      if (!videoUrl) {
-        errorBox.textContent = "Please enter a YouTube video URL.";
-        errorBox.style.display = "block";
-        return;
-      }
-
-      if (GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
-        errorBox.textContent = "Please insert your Gemini API key in the script before use.";
-        errorBox.style.display = "block";
-        return;
-      }
+      if (!videoUrl) { showError("Please enter a YouTube video URL."); return; }
+      if (GEMINI_API_KEY === "YOUR_API_KEY_HERE") { showError("Please insert your Gemini API key in the script before use."); return; }
 
       let humanCodes = null;
       if (humanCodesRaw) {
-        try {
-          humanCodes = JSON.parse(humanCodesRaw);
-        } catch (e) {
-          errorBox.textContent = "Invalid JSON in human-coded labels. Please check your input.";
-          errorBox.style.display = "block";
-          return;
-        }
+        try { humanCodes = JSON.parse(humanCodesRaw); }
+        catch (e) { showError("Invalid JSON in human-coded labels."); return; }
       }
 
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span>Analyzing...';
+      btn.innerHTML = '<span class="spinner"></span> Analyzing...';
 
-      const prompt = `You are a developmental psychology research assistant. Analyze the caregiver-child interaction video at this URL: ${videoUrl}
+      const prompt = `You are a friendly child development observer helping parents understand what's happening in a video of their child. Analyze the caregiver-child interaction video at this URL: ${videoUrl}
 
-Produce a structured behavioral coding output in valid JSON with these fields:
-- "clip_summary": A short neutral description of the observed interaction.
-- "rubric_codes": An object with these four keys, each coded as "present", "absent", or "uncertain":
-    - "motor_development": Evidence of infant motor behavior or milestone-related movement.
-    - "caregiver_behavior": Observable caregiver actions toward the child.
-    - "safety_issue": Potential physical or situational safety concern.
-    - "scaffolding": Caregiver intentionally supporting skill learning or guided development.
-- "evidence_notes": An object with the same four keys, each containing a short explanation of why you assigned that code.
-- "review_flags": An array of strings noting anything a human reviewer should double-check.
+Produce your observations in valid JSON with these fields:
+- "summary": A warm, easy-to-read 2-3 sentence description of what you see happening in the video, written for a parent audience.
+- "observations": An object with these four keys:
+    - "movement": What movement or motor skills you observe the child doing (reaching, crawling, grasping, walking, etc.). Use "observed", "not observed", or "hard to tell".
+    - "caregiver_engagement": How the adult is interacting with the child (talking, holding, playing, encouraging). Use "observed", "not observed", or "hard to tell".
+    - "safety": Whether there are any visible safety concerns. Use "looks safe", "concern noticed", or "hard to tell".
+    - "learning_support": Whether the caregiver seems to be helping the child learn something new, like guiding them through a task. Use "observed", "not observed", or "hard to tell".
+- "details": An object with the same four keys, each containing 1-2 friendly sentences explaining what you noticed, written as if talking to a parent. Be encouraging and specific.
+- "things_to_note": An array of short, friendly suggestions or things a parent might want to pay attention to or discuss with their pediatrician.
 
 Important rules:
-- Only describe observable behavior.
-- Do not diagnose the child or infer mental states.
-- If scaffolding is ambiguous, code it as "uncertain" and explain why.
+- Write in a warm, supportive tone — you're helping a parent, not writing a clinical report.
+- Only describe what you can actually see happening.
+- Do not diagnose the child or make medical claims.
+- If something is unclear, say so kindly.
 - Return ONLY valid JSON, no markdown fences, no extra text.`;
 
       try {
@@ -352,107 +617,128 @@ Important rules:
 
         const data = await response.json();
         let text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-        // Strip markdown code fences if present
         text = text.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
 
         const result = JSON.parse(text);
         displayResults(result, humanCodes);
+        saveToHistory(videoUrl, result);
       } catch (err) {
-        errorBox.textContent = "Error: " + err.message;
-        errorBox.style.display = "block";
+        showError("Error: " + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = "Analyze Video";
+        btn.innerHTML = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Analyze Video';
       }
     }
 
+    function showError(msg) {
+      const box = document.getElementById("errorBox");
+      box.textContent = msg;
+      box.style.display = "block";
+    }
+
+    /* ===== Display Results ===== */
     function displayResults(result, humanCodes) {
-      const resultsSection = document.getElementById("resultsSection");
+      document.getElementById("clipSummary").textContent = result.summary || "No summary provided.";
 
-      // Clip Summary
-      document.getElementById("clipSummary").textContent =
-        result.clip_summary || "No summary provided.";
-
-      // Rubric Codes
+      // Observation cards
       const codesDiv = document.getElementById("rubricCodes");
       codesDiv.innerHTML = "";
-      for (const cat of RUBRIC_CATEGORIES) {
-        const val = (result.rubric_codes?.[cat] || "uncertain").toLowerCase();
-        const row = document.createElement("div");
-        row.className = "code-row";
-        row.innerHTML = `
-          <span class="code-label">${formatLabel(cat)}</span>
-          <span class="code-value ${val}">${val}</span>
-        `;
-        codesDiv.appendChild(row);
+      for (const cat of OBS_CATEGORIES) {
+        const raw = (result.observations?.[cat] || "hard to tell").toLowerCase();
+        let status = "uncertain";
+        if (raw.includes("observed") || raw.includes("looks safe")) status = "present";
+        else if (raw.includes("not observed")) status = "absent";
+        else if (raw.includes("concern")) status = "absent";
+        const displayVal = result.observations?.[cat] || "Hard to tell";
+        codesDiv.innerHTML += `<div class="rubric-card ${status}"><div class="rc-label">${OBS_LABELS[cat]}</div><div class="rc-value">${displayVal}</div></div>`;
       }
 
-      // Evidence Notes
+      // Details
       const notesDiv = document.getElementById("evidenceNotes");
       notesDiv.innerHTML = "";
-      for (const cat of RUBRIC_CATEGORIES) {
-        const note = result.evidence_notes?.[cat] || "No evidence note provided.";
-        const item = document.createElement("div");
-        item.className = "evidence-item";
-        item.innerHTML = `<strong>${formatLabel(cat)}</strong>${note}`;
-        notesDiv.appendChild(item);
+      for (const cat of OBS_CATEGORIES) {
+        const note = result.details?.[cat] || "No details available.";
+        notesDiv.innerHTML += `<div class="evidence-item"><strong>${OBS_LABELS[cat]}</strong><p>${note}</p></div>`;
       }
 
-      // Human Comparison
-      const compCard = document.getElementById("comparisonCard");
-      const compDiv = document.getElementById("comparisonResults");
-      if (humanCodes) {
-        compCard.style.display = "block";
-        compDiv.innerHTML = "";
+      // Hide comparison for parent view
+      document.getElementById("comparisonCard").style.display = "none";
 
-        let matches = 0;
-        let total = 0;
-        let rows = "";
-
-        for (const cat of RUBRIC_CATEGORIES) {
-          const aiVal = (result.rubric_codes?.[cat] || "").toLowerCase();
-          const humanVal = (humanCodes[cat] || "").toLowerCase();
-          if (!humanVal) continue;
-          total++;
-          const isMatch = aiVal === humanVal;
-          if (isMatch) matches++;
-          rows += `<tr>
-            <td>${formatLabel(cat)}</td>
-            <td>${aiVal}</td>
-            <td>${humanVal}</td>
-            <td class="${isMatch ? "match" : "mismatch"}">${isMatch ? "Match" : "Mismatch"}</td>
-          </tr>`;
-        }
-
-        const rate = total > 0 ? (matches / total) : 0;
-        const level = rate >= 0.75 ? "high" : rate >= 0.5 ? "medium" : "low";
-
-        compDiv.innerHTML = `
-          <table class="comparison-table">
-            <thead><tr><th>Category</th><th>AI Code</th><th>Human Code</th><th>Result</th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-          <span class="agreement-badge ${level}">Agreement: ${Math.round(rate * 100)}% (${level})</span>
-        `;
-      } else {
-        compCard.style.display = "none";
-      }
-
-      // Review Flags
+      // Things to note
       const flagsDiv = document.getElementById("reviewFlags");
-      const flags = result.review_flags || [];
-      if (flags.length > 0) {
-        flagsDiv.innerHTML = flags.map(f => `<div class="evidence-item">${f}</div>`).join("");
+      const flags = result.things_to_note || [];
+      if (flags.length) {
+        flagsDiv.innerHTML = flags.map(f => `<div class="flag-item"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>${f}</div>`).join("");
       } else {
-        flagsDiv.innerHTML = '<div class="evidence-item" style="color:#888;">No review flags.</div>';
+        flagsDiv.innerHTML = '<div class="flag-item" style="color:var(--text-muted);">Nothing extra to note right now!</div>';
       }
 
-      resultsSection.classList.add("visible");
+      document.getElementById("resultsSection").classList.add("visible");
     }
 
+    /* ===== History ===== */
+    function saveToHistory(url, result) {
+      const history = JSON.parse(localStorage.getItem("cvca_history") || "[]");
+      history.unshift({
+        id: Date.now(),
+        url: url,
+        videoId: extractVideoId(url),
+        date: new Date().toISOString(),
+        result: result
+      });
+      if (history.length > 50) history.pop();
+      localStorage.setItem("cvca_history", JSON.stringify(history));
+    }
+
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem("cvca_history") || "[]");
+      const container = document.getElementById("historyContent");
+      const clearBtn = document.getElementById("clearHistoryBtn");
+
+      if (!history.length) {
+        clearBtn.style.display = "none";
+        container.innerHTML = `<div class="history-empty"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>No analyses yet. Go to Analyze Video to get started.</p></div>`;
+        return;
+      }
+
+      clearBtn.style.display = "inline-flex";
+      let rows = "";
+      for (const entry of history) {
+        const d = new Date(entry.date);
+        const dateStr = d.toLocaleDateString() + " " + d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+        const obs = entry.result.observations || {};
+        const dots = OBS_CATEGORIES.map(c => {
+          const raw = (obs[c]||"").toLowerCase();
+          let s = "uncertain";
+          if (raw.includes("observed") || raw.includes("looks safe")) s = "present";
+          else if (raw.includes("not observed") || raw.includes("concern")) s = "absent";
+          return `<span class="mini-dot ${s}" title="${OBS_LABELS[c]}: ${obs[c]||"?"}"></span>`;
+        }).join("");
+        rows += `<tr onclick="viewHistoryEntry(${entry.id})"><td style="font-weight:600;">${entry.url.substring(0,50)}${entry.url.length>50?"...":""}</td><td>${dateStr}</td><td><div class="mini-codes">${dots}</div></td></tr>`;
+      }
+      container.innerHTML = `<table class="history-table"><thead><tr><th>Video URL</th><th>Date</th><th>Codes</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    function viewHistoryEntry(id) {
+      const history = JSON.parse(localStorage.getItem("cvca_history") || "[]");
+      const entry = history.find(h => h.id === id);
+      if (!entry) return;
+      document.getElementById("videoUrl").value = entry.url;
+      updateVideoPreview();
+      switchView("analyze");
+      displayResults(entry.result, null);
+    }
+
+    function clearHistory() {
+      if (confirm("Clear all analysis history?")) {
+        localStorage.removeItem("cvca_history");
+        renderHistory();
+      }
+    }
+
+    /* ===== Helpers ===== */
     function formatLabel(key) {
-      return key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      return OBS_LABELS[key] || key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     }
   </script>
 </body>
