@@ -719,7 +719,7 @@ CRITICAL RULES:
 
         for (const model of models) {
           const parts = model.video
-            ? [{ fileData: { mimeType: "video/*", fileUri: videoUrl } }, { text: prompt }]
+            ? [{ fileData: { fileUri: videoUrl } }, { text: prompt }]
             : [{ text: prompt + "\n\nVideo URL to analyze: " + videoUrl }];
 
           const requestBody = {
