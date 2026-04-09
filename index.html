@@ -744,14 +744,16 @@ CRITICAL RULES:
             } else {
               lastError = await response.json().catch(() => ({}));
               console.warn(`${model.name} ${model.video ? "(video)" : "(text)"} failed:`, lastError?.error?.message);
+              await new Promise(r => setTimeout(r, 1000));
             }
           } catch (e) {
             console.warn(`${model.name} network error:`, e.message);
+            await new Promise(r => setTimeout(r, 1000));
           }
         }
 
         if (!data) {
-          throw new Error(lastError?.error?.message || "All models failed. Please try again later.");
+          throw new Error("The AI service is temporarily busy. This usually resolves in a few seconds. Please click Analyze Video again to retry.");
         }
 
         let text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
