@@ -774,10 +774,15 @@ CRITICAL RULES:
 
         if (!text) {
           console.error("Empty response. Full data:", JSON.stringify(data));
-          const finishReason = data.candidates?.[0]?.finishReason || "unknown";
-          const safetyRatings = data.candidates?.[0]?.safetyRatings?.map(r => `${r.category}: ${r.probability}`).join(", ") || "none";
-          console.error("Finish reason:", finishReason, "Safety:", safetyRatings);
-          throw new Error(`The AI couldn't analyze this video (reason: ${finishReason}). Try a different video or click Analyze again.`);
+          const finishReason = data.candidates?.[0]?.finishReason || "no candidates";
+          const blockReason = data.promptFeedback?.blockReason || "";
+          const safetyRatings = data.promptFeedback?.safetyRatings?.map(r => `${r.category}: ${r.probability}`).join(", ") || "";
+          console.error("Finish reason:", finishReason, "Block reason:", blockReason, "Safety:", safetyRatings);
+
+          if (blockReason) {
+            throw new Error(`The video was blocked by safety filters (${blockReason}). Try a different video.`);
+          }
+          throw new Error(`The AI couldn't analyze this video (${finishReason}). This may be a temporary issue — please click Analyze again.`);
         }
 
         let result;
