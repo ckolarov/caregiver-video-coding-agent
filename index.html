@@ -739,15 +739,18 @@ CRITICAL RULES:
 
             if (response.ok) {
               data = await response.json();
-              console.log("Using model:", model.name, model.video ? "(video)" : "(text-only)");
+              console.log("SUCCESS - Using model:", model.name, model.video ? "(video)" : "(text-only)");
+              console.log("Raw response:", JSON.stringify(data).substring(0, 500));
               break;
             } else {
               lastError = await response.json().catch(() => ({}));
-              console.warn(`${model.name} ${model.video ? "(video)" : "(text)"} failed:`, lastError?.error?.message);
+              console.warn(`FAIL - ${model.name} ${model.video ? "(video)" : "(text)"}:`, lastError?.error?.message);
+              btn.innerHTML = `<span class="spinner"></span> Trying another model...`;
               await new Promise(r => setTimeout(r, 1000));
             }
           } catch (e) {
-            console.warn(`${model.name} network error:`, e.message);
+            console.warn(`FAIL - ${model.name} network error:`, e.message);
+            btn.innerHTML = `<span class="spinner"></span> Trying another model...`;
             await new Promise(r => setTimeout(r, 1000));
           }
         }
@@ -770,7 +773,11 @@ CRITICAL RULES:
         }
 
         if (!text) {
-          throw new Error("The AI returned an empty response. Please try again.");
+          console.error("Empty response. Full data:", JSON.stringify(data));
+          const finishReason = data.candidates?.[0]?.finishReason || "unknown";
+          const safetyRatings = data.candidates?.[0]?.safetyRatings?.map(r => `${r.category}: ${r.probability}`).join(", ") || "none";
+          console.error("Finish reason:", finishReason, "Safety:", safetyRatings);
+          throw new Error(`The AI couldn't analyze this video (reason: ${finishReason}). Try a different video or click Analyze again.`);
         }
 
         let result;
