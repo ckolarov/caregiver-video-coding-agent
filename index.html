@@ -630,28 +630,79 @@
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> Analyzing...';
 
-      const prompt = `You are a child development expert helping parents understand what's happening in a video of their child and what it means for their cognitive growth. Carefully watch the attached video and analyze the caregiver-child interactions you actually observe.
+      const prompt = `You are an expert in developmental psychology trained in the DPICS-IV (Dyadic Parent-Child Interaction Coding System) and the PC-SCP (Parent/Caregiver Support of Children's Playfulness) frameworks. Your job is to carefully watch this video of a caregiver-child interaction and provide a detailed, research-grounded analysis for parents.
+
+=== WHAT TO OBSERVE IN THE CHILD ===
+Watch for these specific movement and behavior patterns:
+- GROSS MOTOR: crawling, walking, running, climbing, jumping, pulling to stand, cruising along furniture, sitting independently, rolling
+- FINE MOTOR: reaching, grasping (palmar vs pincer grip), object manipulation, stacking, pointing, transferring objects between hands, banging objects together
+- EXPLORATORY: mouthing objects, turning objects over to examine them, dropping/throwing to test gravity, opening/closing containers
+- SOCIAL-EMOTIONAL: eye contact with caregiver, social referencing (looking to caregiver for reassurance), joint attention (following caregiver's gaze or point), turn-taking, imitation, emotional expressions (frustration, joy, surprise)
+- VERBAL/PRE-VERBAL: babbling, word attempts, pointing + vocalizing, responding to name, following simple verbal instructions
+
+=== WHAT TO OBSERVE IN THE CAREGIVER (DPICS-IV Framework) ===
+Classify the caregiver's verbal and physical behaviors into these research-validated categories:
+- LABELED PRAISE (LP): Specific positive feedback — "Great job stacking those blocks!"
+- UNLABELED PRAISE (UP): Generic praise — "Good!" "Nice!" "Awesome!"
+- REFLECTION (RF): Repeating or paraphrasing what the child says or vocalizes
+- BEHAVIOR DESCRIPTION (BD): Narrating what the child is doing — "You're pushing the car across the floor"
+- INFORMATION QUESTION (IQ): Asking for information — "What color is that?"
+- DESCRIPTIVE QUESTION (DQ): Questions about what's happening — "Is that a big one?"
+- INDIRECT COMMAND (IC): Suggestions — "Can you put that away?"
+- DIRECT COMMAND (DC): Explicit instructions — "Put that down now."
+- NEGATIVE TALK (NTA): Critical, sarcastic, or disapproving statements
+- NEUTRAL TALK (TA): Conversational speech that doesn't fit other categories
+Also observe: physical proximity, touch patterns, responsiveness timing (how quickly caregiver responds to child's bids), whether caregiver follows child's lead vs. directs play
+
+=== WHAT TO OBSERVE IN THE INTERACTION (PC-SCP Framework) ===
+- SCAFFOLDING QUALITY: Is the caregiver adjusting difficulty level to match the child? Providing just enough help without taking over?
+- JOINT ATTENTION EPISODES: Are caregiver and child focused on the same thing? Who initiates?
+- TURN-TAKING: Are there back-and-forth exchanges (verbal or physical)?
+- EMOTIONAL TONE: Is the interaction warm, tense, flat, or playful?
+- CHILD AUTONOMY: Is the child allowed to explore freely, or is play heavily directed?
+
+=== HOW BEHAVIORS CONNECT TO COGNITIVE DEVELOPMENT ===
+Use these research-backed connections:
+- Reaching/grasping → hand-eye coordination → foundation for problem-solving and tool use
+- Object exploration (mouthing, banging, dropping) → cause-and-effect reasoning → early scientific thinking
+- Crawling/walking → spatial navigation → spatial reasoning and memory
+- Joint attention → shared understanding → foundation for language and theory of mind
+- Caregiver behavior descriptions (BD) → language exposure → vocabulary development
+- Labeled praise (LP) → behavioral reinforcement → self-regulation skills
+- Reflections (RF) → language modeling → speech and communication development
+- Scaffolding → zone of proximal development → accelerated cognitive growth
+- Negative talk (NTA) → stress response → can hinder executive function development
+- Turn-taking → conversational rhythm → social cognition and language processing
 
 Produce your analysis in valid JSON with these fields:
-- "summary": A warm, easy-to-read 2-3 sentence description of what you see happening in the video and what it suggests about the child's development, written for a parent audience.
-- "observations": An object with these four keys:
-    - "movement": What movement or motor skills you observe the child doing (reaching, crawling, grasping, walking, etc.). Use "observed", "not observed", or "hard to tell".
-    - "caregiver_engagement": How the adult is interacting with the child (talking, holding, playing, encouraging). Use "observed", "not observed", or "hard to tell".
-    - "safety": Whether there are any visible safety concerns. Use "looks safe", "concern noticed", or "hard to tell".
-    - "learning_support": Whether the caregiver seems to be helping the child learn something new, like guiding them through a task. Use "observed", "not observed", or "hard to tell".
-- "details": An object with the same four keys, each containing 1-2 friendly sentences explaining what you noticed, written as if talking to a parent. Be encouraging and specific.
-- "cognitive_insights": An object with these keys, each containing 2-3 sentences explaining how the observed behaviors connect to the child's cognitive development:
-    - "what_this_means": A plain-language explanation of what the observed motor and interaction patterns tell us about the child's brain development and cognitive growth. Connect specific movements or interactions to developmental milestones (e.g., reaching builds hand-eye coordination, babbling with a caregiver supports language development, exploring objects builds problem-solving skills).
-    - "developmental_stage": Based on what you observe, describe what approximate developmental stage the child appears to be in and what cognitive abilities are typically emerging at this stage. Be general and supportive, not diagnostic.
-    - "how_to_support": Provide 2-3 specific, actionable suggestions for how the caregiver can continue supporting the child's cognitive development based on what you observed in the video. These should be practical everyday activities.
-- "things_to_note": An array of short, friendly suggestions or things a parent might want to pay attention to or discuss with their pediatrician.
 
-Important rules:
-- Write in a warm, supportive, encouraging tone — you're helping a parent understand their child's growth.
-- Connect physical behaviors to cognitive development (e.g., "When your child reaches for that toy, they're practicing hand-eye coordination, which is a building block for problem-solving").
-- Only describe what you can actually see happening.
-- Do not diagnose the child or make medical claims.
-- If something is unclear, say so kindly.
+- "summary": 2-3 sentences describing what you see in the video and what it means for the child's development. Written warmly for a parent, but be HONEST — if you observe concerning patterns (excessive negative talk, child distress, lack of engagement), say so gently.
+
+- "observations": An object with these keys:
+    - "movement": "observed" / "not observed" / "hard to tell"
+    - "caregiver_engagement": "observed" / "not observed" / "hard to tell"
+    - "safety": "looks safe" / "concern noticed" / "hard to tell"
+    - "learning_support": "observed" / "not observed" / "hard to tell"
+
+- "details": An object with these keys, each 2-3 sentences with SPECIFIC observations from the video (timestamps if possible):
+    - "movement": Describe exactly which motor behaviors you see the child performing and what developmental milestone they relate to.
+    - "caregiver_engagement": Classify the caregiver's communication using DPICS categories. Estimate the mix — e.g., "mostly behavior descriptions and labeled praise, with occasional direct commands." Note responsiveness and emotional tone.
+    - "safety": Any environmental or interaction safety observations.
+    - "learning_support": Assess scaffolding quality — is the caregiver adjusting to the child's level? Following the child's lead? Providing appropriate challenge?
+
+- "cognitive_insights": An object with these keys:
+    - "what_this_means": Connect the SPECIFIC behaviors you observed to cognitive development. Don't be generic — reference the actual movements and interactions you saw. For example: "The repeated reaching and grasping of the stacking rings shows developing hand-eye coordination, which is a precursor to problem-solving and tool use."
+    - "developmental_stage": Based on the motor, verbal, and social behaviors observed, estimate the child's approximate developmental stage and what cognitive abilities are emerging. Be honest but supportive.
+    - "caregiver_impact": Analyze how the caregiver's specific communication style (using DPICS categories) is likely affecting the child's development. Highlight what's working well AND areas for growth. For example: "The frequent use of behavior descriptions is excellent for language development. Adding more labeled praise could strengthen the child's self-regulation."
+    - "how_to_support": 3-4 specific, actionable suggestions based on what you observed. These should directly address the patterns you saw — not generic advice.
+
+- "things_to_note": An array of honest, specific observations or suggestions. If you notice concerning patterns, mention them gently with a suggestion to discuss with a pediatrician. If everything looks healthy, say that too.
+
+CRITICAL RULES:
+- Be HONEST. If the interaction has problems (child is distressed, caregiver is harsh, there's no engagement), describe what you actually see. Don't sugarcoat.
+- Be SPECIFIC. Reference actual moments from the video. Generic observations are useless.
+- Only describe what you can actually see and hear. If the video is unclear, say so.
+- Do not diagnose. You can describe patterns and their typical developmental implications, but always recommend professional consultation for concerns.
 - Return ONLY valid JSON, no markdown fences, no extra text.`;
 
       try {
@@ -757,6 +808,9 @@ Important rules:
         }
         if (cog.developmental_stage) {
           cogDiv.innerHTML += `<div class="evidence-item"><strong>Developmental Stage</strong><p>${cog.developmental_stage}</p></div>`;
+        }
+        if (cog.caregiver_impact) {
+          cogDiv.innerHTML += `<div class="evidence-item"><strong>Caregiver Communication Impact</strong><p>${cog.caregiver_impact}</p></div>`;
         }
         if (cog.how_to_support) {
           cogDiv.innerHTML += `<div class="evidence-item"><strong>How You Can Support Their Growth</strong><p>${cog.how_to_support}</p></div>`;
