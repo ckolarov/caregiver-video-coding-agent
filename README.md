@@ -1,6 +1,8 @@
-# Caregiver Video Coding Agent
+# DevWatch — Child Development Video Analysis
 
-A multi-agent AI system for developmental psychology research that analyzes caregiver-child interaction videos and produces structured behavioral coding output. Built with LangChain/LangGraph and Google Gemini, the platform includes a Python-based multi-agent pipeline and a single-file browser interface for researchers.
+> **[Click here to view the live website](https://ckolarov.github.io/caregiver-video-coding-agent/)**
+
+An AI-powered tool that analyzes caregiver-child interaction videos and provides research-grounded developmental insights for parents. Built with Google Gemini's multimodal video analysis, grounded in the DPICS-IV and PC-SCP behavioral coding frameworks.
 
 ## What It Does
 
